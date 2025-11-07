@@ -53,7 +53,7 @@
         <esbuild-java.version>1.5.1</esbuild-java.version>
 
         <!-- Maven Core and Artifact Versions -->
-        <maven-artifact.version>3.9.7</maven-artifact.version>
+        <maven-artifact.version>3.9.11</maven-artifact.version>
         <maven-core.version>3.9.7</maven-core.version>
         <maven-model.version>3.9.7</maven-model.version>
         <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
