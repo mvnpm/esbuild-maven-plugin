@@ -42,7 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Plugin Versions -->
-        <formatter.plugin.version>2.24.0</formatter.plugin.version>
+        <formatter.plugin.version>2.29.0</formatter.plugin.version>
         <impsort.plugin.version>1.9.0</impsort.plugin.version>
         <quarkus.ide-config.version>3.29.1</quarkus.ide-config.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
