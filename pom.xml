@@ -75,7 +75,7 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>maven-model-helper</artifactId>
-            <version>27</version>
+            <version>37</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
