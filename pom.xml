@@ -56,7 +56,7 @@
 
         <!-- Maven Core and Artifact Versions -->
         <maven-artifact.version>3.9.11</maven-artifact.version>
-        <maven-core.version>3.9.7</maven-core.version>
+        <maven-core.version>3.9.11</maven-core.version>
         <maven-model.version>3.9.7</maven-model.version>
         <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
         <maven-plugin-api.version>3.9.11</maven-plugin-api.version>
@@ -112,17 +112,6 @@
         </dependency>
 
     </dependencies>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <plugins>
