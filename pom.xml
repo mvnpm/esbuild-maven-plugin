@@ -41,6 +41,8 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <esbuild-java.version>2.0.1</esbuild-java.version>
+
         <!-- Plugin Versions -->
         <formatter.plugin.version>2.24.0</formatter.plugin.version>
         <impsort.plugin.version>1.9.0</impsort.plugin.version>
@@ -50,7 +52,7 @@
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-        <esbuild-java.version>1.5.6</esbuild-java.version>
+        <maven-invoker-plugin.version>3.9.1</maven-invoker-plugin.version>
 
         <!-- Maven Core and Artifact Versions -->
         <maven-artifact.version>3.9.11</maven-artifact.version>
@@ -63,19 +65,20 @@
         <quarkus.version>3.15.1</quarkus.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <hamcrest.version>2.2</hamcrest.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.mvnpm</groupId>
-            <artifactId>esbuild-java-bundle-scss</artifactId>
+            <artifactId>esbuild-java-plugin-sass</artifactId>
             <version>${esbuild-java.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>maven-model-helper</artifactId>
-            <version>27</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.mvnpm</groupId>
+                    <artifactId>esbuild-java-native-deps</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -100,6 +103,14 @@
             <version>${maven-core.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <scope>test</scope>
+            <version>${hamcrest.version}</version>
+        </dependency>
+
     </dependencies>
 
     <distributionManagement>
@@ -210,6 +221,31 @@
                     <source>17</source>
                     <target>17</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>${maven-invoker-plugin.version}</version>
+                <configuration>
+                    <setupIncludes>
+                        <setupInclude>setup/*/pom.xml</setupInclude>
+                    </setupIncludes>
+                    <pomIncludes>
+                        <pomInclude>*/*/pom.xml</pomInclude>
+                    </pomIncludes>
+                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                    <addTestClassPath>true</addTestClassPath>
+                    <streamLogs>true</streamLogs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 

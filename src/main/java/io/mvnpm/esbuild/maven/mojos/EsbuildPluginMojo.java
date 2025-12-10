@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -22,12 +21,20 @@ import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 
 import io.mvnpm.esbuild.Bundler;
 import io.mvnpm.esbuild.model.*;
+import io.mvnpm.esbuild.plugin.EsBuildPluginSass;
 
 @Mojo(name = "esbuild", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, requiresDependencyResolution = ResolutionScope.TEST, requiresDependencyCollection = ResolutionScope.TEST)
 public class EsbuildPluginMojo extends AbstractMojo {
@@ -56,6 +63,11 @@ public class EsbuildPluginMojo extends AbstractMojo {
     @Component
     private RepositorySystem repoSystem;
 
+
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
+    private List<RemoteRepository> remoteRepos;
+
+
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repoSession;
 
@@ -63,8 +75,10 @@ public class EsbuildPluginMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         final Plugin plugin = resolvePlugin();
 
-        List<WebDependency> webDeps = new ArrayList<>();
-        for (Dependency dependency : plugin.getDependencies()) {
+        final List<WebDependency> webDeps = getEsbuildDeps();
+
+
+        for (org.apache.maven.model.Dependency dependency : plugin.getDependencies()) {
             if (WebDependency.WebDependencyType.anyMatch(dependency.getGroupId())) {
                 webDeps.add(toWebDep(dependency));
             }
@@ -76,6 +90,7 @@ public class EsbuildPluginMojo extends AbstractMojo {
                 .withDependencies(webDeps)
                 .withEsConfig(EsBuildConfig.builder().fixedEntryNames().build())
                 .withNodeModulesDir(basedirPath.resolve(nodeModules))
+                .withPlugins(List.of(new EsBuildPluginSass()))
                 .addEntryPoint(entryPoint);
         try {
             final BundleResult bundle = Bundler.bundle(builder.build(), true);
@@ -89,6 +104,37 @@ public class EsbuildPluginMojo extends AbstractMojo {
         }
     }
 
+    private List<WebDependency> getEsbuildDeps() {
+        try {
+            List<WebDependency> webDeps = new ArrayList<>();
+            var artifact = new DefaultArtifact("io.mvnpm:esbuild-java-plugin-sass:2.0.1");
+            var rootDep = new Dependency(artifact, "compile", false);
+            var collectRequest = new CollectRequest()
+                    .setRoot(rootDep)
+                    .setRepositories(remoteRepos);
+            DependencyFilter mvnpmFilter = (node, parents) -> {
+                Artifact a = node.getArtifact();
+                return a != null && a.getGroupId().startsWith("org.mvnpm");
+            };
+            DependencyFilter filter = DependencyFilterUtils.classpathFilter("compile");
+            var depRequest = new DependencyRequest(collectRequest, DependencyFilterUtils.andFilter(mvnpmFilter, filter));
+            var results = repoSystem.resolveDependencies(repoSession, depRequest).getArtifactResults();
+            for (ArtifactResult r : results) {
+                var a = r.getArtifact();
+                webDeps.add(toWebDep(a));
+            }
+            return webDeps;
+        } catch (DependencyResolutionException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private WebDependency toWebDep(Artifact a) {
+        final String gav = a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion();
+        return new WebDependency(gav, a.getFile().toPath(), WebDependency.WebDependencyType.resolveType(gav).orElseThrow());
+    }
+
     private Plugin resolvePlugin() throws MojoFailureException {
         for (Plugin buildPlugin : project.getBuildPlugins()) {
             if (buildPlugin.getArtifactId().equals("esbuild-maven-plugin")) {
@@ -98,16 +144,12 @@ public class EsbuildPluginMojo extends AbstractMojo {
         throw new MojoFailureException("esbuild-maven-plugin configuration not found");
     }
 
-    private WebDependency toWebDep(Dependency d) throws MojoExecutionException {
-
+    private WebDependency toWebDep(org.apache.maven.model.Dependency d) throws MojoExecutionException {
         final Artifact a = resolveArtifact(d);
-
-        final String gav = d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion();
-        return new WebDependency(gav, a.getFile().toPath(), WebDependency.WebDependencyType.resolveType(gav).orElseThrow());
-
+        return toWebDep(a);
     }
 
-    private Artifact resolveArtifact(Dependency d) throws MojoExecutionException {
+    private Artifact resolveArtifact(org.apache.maven.model.Dependency d) throws MojoExecutionException {
         Artifact a = new DefaultArtifact(
                 d.getGroupId(),
                 d.getArtifactId(),
