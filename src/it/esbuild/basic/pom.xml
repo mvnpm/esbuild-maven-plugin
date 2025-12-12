@@ -14,7 +14,7 @@
             <plugin>
                 <groupId>io.mvnpm</groupId>
                 <artifactId>esbuild-maven-plugin</artifactId>
-                <version>999-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <id>esbuild</id>

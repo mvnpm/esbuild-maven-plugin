@@ -63,10 +63,8 @@ public class EsbuildPluginMojo extends AbstractMojo {
     @Component
     private RepositorySystem repoSystem;
 
-
     @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
     private List<RemoteRepository> remoteRepos;
-
 
     @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
     private RepositorySystemSession repoSession;
@@ -76,7 +74,6 @@ public class EsbuildPluginMojo extends AbstractMojo {
         final Plugin plugin = resolvePlugin();
 
         final List<WebDependency> webDeps = getEsbuildDeps();
-
 
         for (org.apache.maven.model.Dependency dependency : plugin.getDependencies()) {
             if (WebDependency.WebDependencyType.anyMatch(dependency.getGroupId())) {
