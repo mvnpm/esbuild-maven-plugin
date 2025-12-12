@@ -5,7 +5,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.mvnpm/esbuild-maven-plugin.svg?label=Maven%20Central)](https://search.maven.org/artifact/io.mvnpm/esbuild-maven-plugin)
 [![License](https://img.shields.io/github/license/apache/maven.svg?label=License)](https://www.apache.org/licenses/LICENSE-2.0)
 
-A **Maven plugin** that integrates [esbuild](https://esbuild.github.io/) into your Java project for fast and modern JavaScript/TypeScript bundling.
+A **Maven plugin** that integrates [esbuild](https://esbuild.github.io/) into your Java project for fast and modern JavaScript/TypeScript/CSS/SCSS bundling.
 
 ---
 
