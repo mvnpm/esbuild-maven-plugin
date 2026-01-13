@@ -55,7 +55,7 @@
         <maven-invoker-plugin.version>3.9.1</maven-invoker-plugin.version>
 
         <!-- Maven Core and Artifact Versions -->
-        <maven-artifact.version>3.9.11</maven-artifact.version>
+        <maven-artifact.version>3.9.12</maven-artifact.version>
         <maven-core.version>3.9.12</maven-core.version>
         <maven-model.version>3.9.7</maven-model.version>
         <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
