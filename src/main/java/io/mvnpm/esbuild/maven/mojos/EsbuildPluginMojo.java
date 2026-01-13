@@ -82,8 +82,9 @@ public class EsbuildPluginMojo extends AbstractMojo {
         }
 
         final Path basedirPath = basedir.toPath();
+        final Path workDir = basedirPath.resolve(sourceDirectory);
         final BundleOptionsBuilder builder = BundleOptions.builder()
-                .withWorkDir(basedirPath.resolve(sourceDirectory))
+                .withWorkDir(workDir)
                 .withDependencies(webDeps)
                 .withEsConfig(EsBuildConfig.builder().fixedEntryNames().build())
                 .withNodeModulesDir(basedirPath.resolve(nodeModules))
@@ -92,6 +93,7 @@ public class EsbuildPluginMojo extends AbstractMojo {
         try {
             final BundleResult bundle = Bundler.bundle(builder.build(), true);
             final Path outputDir = basedirPath.resolve(outputDirectory);
+            Files.deleteIfExists(workDir.resolve("build.js"));
             Files.createDirectories(outputDir);
             deleteDirectoryIfExists(outputDir);
             Files.move(bundle.dist(), outputDir);
